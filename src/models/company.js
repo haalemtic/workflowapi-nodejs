@@ -77,13 +77,13 @@ class Company {
                       const connectionStatus =
                         company.servername == "vbs-solutions.com"
                           ? await checkMySqlConnection(
-                              company.servername,
+                              company.servername.replace(/\\\\/g, "\\"),
                               company.username,
                               company.password,
                               company.databaseName
                             )
                           : await checkSqlServerConnection(
-                              company.servername,
+                              company.servername.replace(/\\\\/g, "\\"),
                               company.username,
                               company.password,
                               company.databaseName
@@ -95,7 +95,7 @@ class Company {
                         username: company.username,
                         databaseName: company.databaseName,
                         password: company.password,
-                        servername: company.servername,
+                        servername: company.servername.replace(/\\\\/g, "\\"),
                         status: connectionStatus,
                         grades: gradeFiltered,
                         departments: departmentFiltered,
