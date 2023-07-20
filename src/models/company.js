@@ -26,35 +26,79 @@ class Company {
           console.error("Erreur lors de l'exécution de la requête :", error);
           reject(error);
           return;
-        }
-        const formattedCompanies = [];
-        for (const company of results) {
-          const connectionStatus =
-            company.servername == "vbs-solutions.com"
-              ? await checkMySqlConnection(
-                  company.servername,
-                  company.username,
-                  company.password,
-                  company.databaseName
-                )
-              : await checkSqlServerConnection(
-                  company.servername,
-                  company.username,
-                  company.password,
-                  company.databaseName
-                );
-          formattedCompanies.push({
-            id: company.id,
-            backgroundColor: company.backgroundColor,
-            companyName: company.companyName,
-            username: company.username,
-            databaseName: company.databaseName,
-            password: company.password,
-            servername: company.servername,
-            statut: connectionStatus,
+        } else {
+          const queryGrade = `SELECT * FROM Grade`;
+
+          this.connexion.query(queryGrade, async (error, gradeResults) => {
+            if (error) {
+              console.error(error);
+              reject(error);
+            } else {
+              const grades = gradeResults;
+
+              const queryDepartment = `SELECT * FROM Department`;
+
+              this.connexion.query(
+                queryDepartment,
+                async (error, departmentResults) => {
+                  if (error) {
+                    console.error(error);
+                    reject(error);
+                  } else {
+                    const departments = departmentResults;
+
+                    const formattedCompanies = [];
+                    for (const company of results) {
+                      const companyId = company.id;
+                      const gradeFiltered = [];
+                      const departmentFiltered = [];
+
+                      for (const grade of grades) {
+                        if (grade.companyId == companyId) {
+                          gradeFiltered.push(grade);
+                        }
+                      }
+
+                      for (const department of departments) {
+                        if (department.companyId == companyId) {
+                          departmentFiltered.push(department)
+                        }
+                      }
+
+                      const connectionStatus =
+                        company.servername == "vbs-solutions.com"
+                          ? await checkMySqlConnection(
+                              company.servername,
+                              company.username,
+                              company.password,
+                              company.databaseName
+                            )
+                          : await checkSqlServerConnection(
+                              company.servername,
+                              company.username,
+                              company.password,
+                              company.databaseName
+                            );
+                      formattedCompanies.push({
+                        id: companyId,
+                        backgroundColor: company.backgroundColor,
+                        companyName: company.companyName,
+                        username: company.username,
+                        databaseName: company.databaseName,
+                        password: company.password,
+                        servername: company.servername,
+                        statut: connectionStatus,
+                        grades: gradeFiltered,
+                        departments:departmentFiltered
+                      });
+                    }
+                    resolve(formattedCompanies);
+                  }
+                }
+              );
+            }
           });
         }
-        resolve(formattedCompanies);
       });
     })
       .then((formattedCompanies) => {
