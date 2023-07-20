@@ -13,12 +13,24 @@ const { getAllUsers } = require("./src/controllers/getAllUsers");
 const { getCompanyByName } = require("./src/controllers/getCompanyByName");
 const { getRequisitions } = require("./src/controllers/getRequisitions");
 const { validateRequisition } = require("./src/controllers/validateRequisition");
+const fs = require('fs');
+const path = require('path');
 const app = express();
 
 
 app.use(bodyParser.json());
 app.use((req, res) => {
-  res.json({ message: "UPDATE !" }); 
+  const filePath = path.join(__dirname, 'index.html');
+
+  fs.readFile(filePath, 'utf8', (err, htmlContent) => {
+      if (err) {
+          // En cas d'erreur de lecture du fichier
+          res.status(500).send('Erreur de lecture du fichier HTML.');
+      } else {
+          // Envoi du contenu HTML en réponse
+          res.send(htmlContent);
+      }
+  });
 });
 //Se connecter à la plateforme d'administration
 app.post("/loginAsAdmin", async (req, res) => {
