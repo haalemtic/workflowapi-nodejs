@@ -1,5 +1,6 @@
 const checkMySqlConnection = require("../functions/checkMysqlConnection");
 const checkSqlServerConnection = require("../functions/checkSqlSrvConnection");
+const sqlsvr = require("mssql");
 
 class Company {
   constructor(databases) {
@@ -160,12 +161,12 @@ class Company {
     };
   }
 
-  updateCompany() {
+  async updateCompany() {
     try {
       // Requête pour mettre à jour la compagnie
       const query = `UPDATE ${this.table} SET databaseName = "${this.databaseName}", servername = "${this.servername}", username = "${this.username}", password = "${this.password}" WHERE id = ${this.id}`;
 
-      this.connexion.query(query, (erreur, resultats) => {
+      await this.connexion.query(query, (erreur, resultats) => {
         if (erreur) {
           console.log("Erreur lors de la mise à jour des champs :", erreur);
           return false;
@@ -276,6 +277,29 @@ class Company {
     }
     // Retourner les résultats au format JSON
     return response;
+  }
+
+  async testConnexion() {
+    try {
+      // Configuration de la connexion à la base de données
+      const config = {
+        server: this.servername.replace(/\\\\/g, "\\"),
+        user: this.username,
+        password: this.password,
+        database: this.databaseName,
+        options: {
+          encrypt: true,
+          trustServerCertificate: true,
+        },
+      };
+      await sqlsvr.connect(config);
+      return { message: `${sqlsvr} \n status: ${true}` };
+    } catch (error) {
+      console.log("Une erreur s'est produite :", error);
+      return { message: `${error} \n status: ${false}` };
+    } finally {
+      sqlsvr.close();
+    }
   }
 }
 

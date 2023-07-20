@@ -12,35 +12,42 @@ const { login } = require("./src/controllers/login");
 const { getAllUsers } = require("./src/controllers/getAllUsers");
 const { getCompanyByName } = require("./src/controllers/getCompanyByName");
 const { getRequisitions } = require("./src/controllers/getRequisitions");
-const { validateRequisition } = require("./src/controllers/validateRequisition");
-const fs = require('fs');
-const path = require('path');
+const {
+  validateRequisition,
+} = require("./src/controllers/validateRequisition");
+const fs = require("fs");
+const path = require("path");
+const { testConnexion } = require("./src/controllers/testConnexion");
 const app = express();
-
-
 
 // permettre l'accès à l'API (CORS)
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Max-Age", "1800");
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token,Origin, X-Requested-With, Content, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token,Origin, X-Requested-With, Content, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+  );
   next();
 });
 
 app.use(bodyParser.json());
-app.get('/', (req, res) => {
-  const filePath = path.join(__dirname, 'index.html');
+app.get("/", (req, res) => {
+  const filePath = path.join(__dirname, "index.html");
 
-  fs.readFile(filePath, 'utf8', (err, htmlContent) => {
-      if (err) {
-          // En cas d'erreur de lecture du fichier
-          res.status(500).send('Erreur de lecture du fichier HTML.');
-      } else {
-          // Envoi du contenu HTML en réponse
-          res.send(htmlContent);
-      }
+  fs.readFile(filePath, "utf8", (err, htmlContent) => {
+    if (err) {
+      // En cas d'erreur de lecture du fichier
+      res.status(500).send("Erreur de lecture du fichier HTML.");
+    } else {
+      // Envoi du contenu HTML en réponse
+      res.send(htmlContent);
+    }
   });
 });
 //Se connecter à la plateforme d'administration
@@ -74,6 +81,13 @@ app.post("/updateCompany", async (req, res) => {
   const connexion = databases.connectToWorkflowDB();
 
   await updateCompany(req, res, connexion);
+});
+ //Tester la connexion à sql server
+app.post("/testConnexion", async (req, res) => {
+  const databases = new Database();
+  const connexion = databases.connectToWorkflowDB();
+
+  await testConnexion(req, res, connexion);
 });
 
 //S'enregistrer
