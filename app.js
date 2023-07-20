@@ -17,7 +17,9 @@ const app = express();
 
 
 app.use(bodyParser.json());
-
+app.use((req, res) => {
+  res.json({ message: "UPDATE !" }); 
+});
 //Se connecter à la plateforme d'administration
 app.post("/loginAsAdmin", async (req, res) => {
   const databases = new Database();
