@@ -4,7 +4,7 @@ async function checkSqlServerConnection(server, user, password, database) {
     try {
       // Configuration de la connexion à la base de données
       const config = {
-        server: server.replace(/\\\\/g, "\\"),
+        server: "VM12SAGE\\SAGE300ERP",
         user: user,
         password: password,
         database: database,

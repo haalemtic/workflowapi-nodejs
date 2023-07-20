@@ -9,7 +9,7 @@ exports.login = async (req, res, connexion) => {
       message:
         "Veuillez renseigner correctement les informations de connexion (companyName,emailAdd,password)",
     });
-    return;
+    
   } else {
     userInstance.companyName = inputData.companyName;
     userInstance.emailAdd = inputData.emailAdd;
