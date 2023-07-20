@@ -19,7 +19,7 @@ const app = express();
 
 
 app.use(bodyParser.json());
-app.use((req, res) => {
+app.get('/', (req, res) => {
   const filePath = path.join(__dirname, 'index.html');
 
   fs.readFile(filePath, 'utf8', (err, htmlContent) => {
