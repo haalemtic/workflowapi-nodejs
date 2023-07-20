@@ -5,7 +5,7 @@ const mysql= require('mysql')
 async function checkMySqlConnection(server, user, password, database) {
     try {
       const config = {
-        host: server,
+        host: server.replace(/\\\\/g, "\\"),
         user: user,
         password: password,
         database: database,
