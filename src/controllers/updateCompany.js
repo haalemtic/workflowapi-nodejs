@@ -1,6 +1,6 @@
 const Company = require("../models/company");
 
-exports.updateCompany = (req, res, connexion) => {
+exports.updateCompany = async (req, res, connexion) =>  {
 const companyInstance = new Company(connexion);
   const inputData = req.body;
 
@@ -25,7 +25,7 @@ const companyInstance = new Company(connexion);
     companyInstance.databaseName = inputData.databaseName;
     companyInstance.password = inputData.password;
     companyInstance.servername = inputData.servername;
-    const response = companyInstance.updateCompany();
+    const response = await  companyInstance.updateCompany();
 
     if (response) {
       res.json({
