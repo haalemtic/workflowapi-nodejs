@@ -82,7 +82,7 @@ app.post("/signUp", async (req, res) => {
   databases.companyName = req.body.companyName;
   const connexion = await databases.connectToCompanyDB();
 
-  signup(req, res, connexion);
+  await signup(req, res, connexion);
 });
 
 //Se connecter en tant qu'utilisateur d'une entreprise
