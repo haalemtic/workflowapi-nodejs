@@ -96,7 +96,7 @@ class Company {
                         databaseName: company.databaseName,
                         password: company.password,
                         servername: company.servername,
-                        statut: connectionStatus,
+                        status: connectionStatus,
                         grades: gradeFiltered,
                         departments: departmentFiltered,
                       });
