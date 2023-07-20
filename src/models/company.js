@@ -56,8 +56,8 @@ class Company {
                       for (const grade of grades) {
                         if (grade.companyId == companyId) {
                           gradeFiltered.push({
-                            id: grade.id,
-                            companyId: grade.companyId,
+                            id: `${grade.id}`,
+                            companyId: `${grade.companyId}`,
                             word: grade.word,
                             maxAmount: grade.maxAmount,
                           });
@@ -67,8 +67,8 @@ class Company {
                       for (const department of departments) {
                         if (department.companyId == companyId) {
                           departmentFiltered.push({
-                            id: department.id,
-                            companyId: department.companyId,
+                            id: `${department.id}`,
+                            companyId: `${department.companyId}`,
                             departmentName: department.departmentName,
                           });
                         }
@@ -89,7 +89,7 @@ class Company {
                               company.databaseName
                             );
                       formattedCompanies.push({
-                        id: companyId,
+                        id: `${companyId}`,
                         backgroundColor: company.backgroundColor,
                         companyName: company.companyName,
                         username: company.username,
