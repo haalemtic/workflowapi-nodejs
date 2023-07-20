@@ -55,13 +55,22 @@ class Company {
 
                       for (const grade of grades) {
                         if (grade.companyId == companyId) {
-                          gradeFiltered.push(grade);
+                          gradeFiltered.push({
+                            id: grade.id,
+                            companyId: grade.companyId,
+                            word: grade.word,
+                            maxAmount: grade.maxAmount,
+                          });
                         }
                       }
 
                       for (const department of departments) {
                         if (department.companyId == companyId) {
-                          departmentFiltered.push(department)
+                          departmentFiltered.push({
+                            id: department.id,
+                            companyId: department.companyId,
+                            departmentName: department.departmentName,
+                          });
                         }
                       }
 
@@ -89,7 +98,7 @@ class Company {
                         servername: company.servername,
                         statut: connectionStatus,
                         grades: gradeFiltered,
-                        departments:departmentFiltered
+                        departments: departmentFiltered,
                       });
                     }
                     resolve(formattedCompanies);
