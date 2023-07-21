@@ -20,7 +20,7 @@ const companyInstance = new Company(connexion);
   } else {
 
    
-    companyInstance.id = inputData.id;
+    companyInstance.id = parseInt(inputData.id);
     companyInstance.username = inputData.username;
     companyInstance.databaseName = inputData.databaseName;
     companyInstance.password = inputData.password;
