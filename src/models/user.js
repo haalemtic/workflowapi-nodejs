@@ -26,10 +26,6 @@ class User {
       const results = await new Promise((resolve, reject) => {
         this.connexion.query(selectQuery, (error, results) => {
           if (error) {
-            console.error(
-              "Erreur lors de l'exécution de la requête SELECT :",
-              error
-            );
             resolve(null);
           } else {
             resolve(results);
@@ -60,12 +56,21 @@ class User {
         // Aucun résultat trouvé pour cette adresse e-mail
         response.code = 0;
       }
-    } catch (error) {
-      console.error("Erreur lors de l'exécution de la requête SELECT :", error);
-      response.code = 3;
-    }
 
-    return response;
+      if (this.companyName != "vision") {
+      } else {
+        this.connexion.end();
+      }
+
+      return response;
+    } catch (error) {
+      if (this.companyName != "vision") {
+      } else {
+        this.connexion.end();
+      }
+
+      return response;
+    }
   }
 
   async signup() {
@@ -78,7 +83,7 @@ class User {
       `;
 
       const checkTableResult = await this.connexion.query(checkTableQuery);
-      console.log(checkTableResult);
+
       const tableExists = checkTableResult.recordset.length > 0;
 
       if (!tableExists) {
@@ -106,18 +111,23 @@ class User {
       return new Promise((resolve, reject) => {
         this.connexion.query(insertQuery, (error) => {
           if (error) {
-            console.log(
-              "Erreur lors de l'exécution de la requête SELECT :",
-              error
-            );
+            if (this.companyName != "vision") {
+            } else {
+              this.connexion.end();
+            }
+            // console.log("Erreur lors de l'exécution de la requête SELECT :",error);
             resolve(false);
           } else {
+            if (this.companyName != "vision") {
+            } else {
+              this.connexion.end();
+            }
             resolve(true);
           }
         });
       });
     } catch (error) {
-      console.log("Une erreur s'est produite :", error);
+      //console.log("Une erreur s'est produite :", error);
       return false; // Erreur lors de l'opération
     }
   }
@@ -125,93 +135,58 @@ class User {
   async getAllUsers() {
     const query = `SELECT * FROM ${this.table}`;
     return new Promise((resolve, reject) => {
-      this.connexion.query(query, async (error, results) => {
-        if (error) {
-          console.error("Erreur lors de l'exécution de la requête :", error);
-          reject(error);
-          return;
-        }
-        const formattedUsers = [];
-        if (this.companyName != "vision") {
-          for (const user of results.recordset) {
-            formattedUsers.push({
-              COMPANYID: user.COMPANYID,
-              EMAILADD: user.EMAILADD,
-              USERNAME: user.USERNAME,
-              DEPARTMENT: user.DEPARTMENT,
-              GRADE: user.GRADE,
-              PASSWORD: user.PASSWORD,
-              MAXAMOUNT: user.MAXAMOUNT,
-            });
+      if (this.connexion != false) {
+        this.connexion.query(query, async (error, results) => {
+          if (error) {
+            if (this.companyName == "vision") {
+              this.connexion.end();
+            } else {
+            }
+            console.error("Erreur lors de l'exécution de la requête :", error);
+            reject(error);
+            return;
           }
-        } else {
-          for (const user of results) {
-            formattedUsers.push({
-              COMPANYID: user.COMPANYID,
-              EMAILADD: user.EMAILADD,
-              USERNAME: user.USERNAME,
-              DEPARTMENT: user.DEPARTMENT,
-              GRADE: user.GRADE,
-              PASSWORD: user.PASSWORD,
-              MAXAMOUNT: user.MAXAMOUNT,
-            });
+          const formattedUsers = [];
+          if (this.companyName != "vision") {
+            for (const user of results.recordset) {
+              formattedUsers.push({
+                COMPANYID: user.COMPANYID,
+                EMAILADD: user.EMAILADD,
+                USERNAME: user.USERNAME,
+                DEPARTMENT: user.DEPARTMENT,
+                GRADE: user.GRADE,
+                PASSWORD: user.PASSWORD,
+                MAXAMOUNT: user.MAXAMOUNT,
+              });
+            }
+          } else {
+            for (const user of results) {
+              formattedUsers.push({
+                COMPANYID: user.COMPANYID,
+                EMAILADD: user.EMAILADD,
+                USERNAME: user.USERNAME,
+                DEPARTMENT: user.DEPARTMENT,
+                GRADE: user.GRADE,
+                PASSWORD: user.PASSWORD,
+                MAXAMOUNT: user.MAXAMOUNT,
+              });
+            }
           }
-        }
-        resolve(formattedUsers);
-      });
-    })
-      .then((formattedUsers) => {
-        if (this.companyName == "vision") {
-          this.connexion.end();
-        }
-        return formattedUsers;
-      })
-      .catch((error) => {
-        console.error("Une erreur s'est produite :", error);
-        if (this.companyName == "vision") {
-          this.connexion.end();
-        }
-        return error;
-      });
-  }
 
-  createCompany() {
-    // Informations de la nouvelle compagnie (à remplacer par vos entrées)
-    const companyInfo = {
-      backgroundColor: this.backgroundColor,
-      companyName: this.companyName,
-      username: this.username,
-      databaseName: this.databaseName,
-      password: this.password,
-      servername: this.servername,
-    };
-    const query =
-      "INSERT INTO Company (backgroundColor, companyName, username, databaseName, password, servername) VALUES (?, ?, ?, ?, ?, ?)";
-    const values = [
-      companyInfo.backgroundColor,
-      companyInfo.companyName,
-      companyInfo.username,
-      companyInfo.databaseName,
-      companyInfo.password,
-      companyInfo.servername,
-    ];
-
-    this.connexion.query(query, values, (err, result) => {
-      this.connexion.end(); // Fermeture de la connexion à la base de données
-
-      if (err) {
-        console.error("Erreur lors de la création de la compagnie :", err);
-        return {
-          status: "error",
-          message: "Echec lors de la création d'une nouvelle compagnie",
-        };
+          if (this.companyName != "vision") {
+          } else {
+            this.connexion.end();
+          }
+          resolve(formattedUsers);
+        });
+      } else {
+        resolve({
+          message:
+            "Impossible de se connecter à la base de données de " +
+            this.companyName,
+        });
       }
     });
-
-    return {
-      status: "success",
-      message: "Nouvelle compagnie ajoutée",
-    };
   }
 }
 

@@ -27,6 +27,11 @@ exports.validateRequisition = async (req, res, connexion) => {
         status: "success",
         message: "Le statut de la requisition a été modifié avec succès.",
       });
+    }else if (response == 2) {
+      res.json({
+        status: "error",
+        message: "Impossible de se connecter à la base de données de "+inputData.companyName,
+      });
     } else {
       res.json({
         status: "error",

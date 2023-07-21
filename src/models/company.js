@@ -102,6 +102,7 @@ class Company {
                         departments: departmentFiltered,
                       });
                     }
+                    this.connexion.end();
                     resolve(formattedCompanies);
                   }
                 }
@@ -110,16 +111,7 @@ class Company {
           });
         }
       });
-    })
-      .then((formattedCompanies) => {
-        this.connexion.end();
-        return formattedCompanies;
-      })
-      .catch((error) => {
-        console.error("Une erreur s'est produite :", error);
-        this.connexion.end();
-        return error;
-      });
+    });
   }
 
   createCompany() {
@@ -148,13 +140,14 @@ class Company {
 
       if (err) {
         console.error("Erreur lors de la création de la compagnie :", err);
+        this.connexion.end();
         return {
           status: "error",
           message: "Echec lors de la création d'une nouvelle compagnie",
         };
       }
     });
-
+    this.connexion.end();
     return {
       status: "success",
       message: "Nouvelle compagnie ajoutée",
@@ -198,75 +191,74 @@ class Company {
       const queryCompany = `SELECT * FROM ${this.table} WHERE companyName = '${this.companyName}'`;
 
       return new Promise((resolve, reject) => {
-        const statementCompany = this.connexion.query(
-          queryCompany,
-          (error, results) => {
-            if (error) {
-              reject(error);
-              console.error(error);
+        this.connexion.query(queryCompany, (error, resultsCompany) => {
+          if (error) {
+            reject(error);
+            console.error(error);
+          } else {
+            const company = resultsCompany[0];
+
+            if (!company) {
+              // La compagnie n'existe pas
+              response.message =
+                "La compagnie avec le nom spécifié n'existe pas.";
+              this.connexion.end();
+              resolve({
+                status: "error",
+                message: "La compagnie avec le nom spécifié n'existe pas.",
+              });
             } else {
-              const company = results[0];
+              // Requête pour récupérer les grades de la compagnie
+              const queryGrades = `SELECT * FROM Grade WHERE companyId = '${company.id}'`;
+              this.connexion.query(queryGrades, (error, resultsGrade) => {
+                if (error) {
+                  this.connexion.end();
+                  console.error(error);
 
-              if (!company) {
-                // La compagnie n'existe pas
-                response.message =
-                  "La compagnie avec le nom spécifié n'existe pas.";
+                  reject(error);
+                } else {
+                  const grades = resultsGrade;
 
-                resolve({
-                  status: "error",
-                  message: "La compagnie avec le nom spécifié n'existe pas.",
-                });
-              } else {
-                // Requête pour récupérer les grades de la compagnie
-                const queryGrades = `SELECT * FROM Grade WHERE companyId = '${company.id}'`;
-                const statementGrades = this.connexion.query(
-                  queryGrades,
-                  (error, results) => {
-                    if (error) {
-                      console.error(error);
-                      reject(error);
-                    } else {
-                      const grades = results;
+                  // Requête pour récupérer les départements de la compagnie
+                  const queryDepartments = `SELECT * FROM Department WHERE companyId = '${company.id}'`;
+                  this.connexion.query(
+                    queryDepartments,
+                    (error, resultsDepartment) => {
+                      if (error) {
+                        this.connexion.end();
+                        console.error(error);
+                        reject(error);
+                      } else {
+                        const departments = resultsDepartment;
 
-                      // Requête pour récupérer les départements de la compagnie
-                      const queryDepartments = `SELECT * FROM Department WHERE companyId = '${company.id}'`;
-                      const statementDepartments = this.connexion.query(
-                        queryDepartments,
-                        (error, results) => {
-                          if (error) {
-                            console.error(error);
-                            reject(error);
-                          } else {
-                            const departments = results;
+                        // Ajouter les grades et les départements à la compagnie
+                        company.grades = grades;
+                        company.departments = departments;
 
-                            // Ajouter les grades et les départements à la compagnie
-                            company.grades = grades;
-                            company.departments = departments;
-
-                            response.status = "success";
-                            response.message =
-                              "Informations de la compagnie récupérées avec succès.";
-                            response.data = company;
-
-                            resolve({
-                              status: "success",
-                              message:
-                                "Informations de la compagnie récupérées avec succès.",
-                              data: company,
-                            });
-                          }
-                        }
-                      );
+                        response.status = "success";
+                        response.message =
+                          "Informations de la compagnie récupérées avec succès.";
+                        response.data = company;
+                        this.connexion.end();
+                        resolve({
+                          status: "success",
+                          message:
+                            "Informations de la compagnie récupérées avec succès.",
+                          data: company,
+                        });
+                      }
                     }
-                  }
-                );
-              }
+                  );
+                }
+              });
             }
           }
-        );
+        });
       });
     } catch (error) {
       // Gérer les erreurs de connexion à la base de données ou autres erreurs éventuelles
+
+      this.connexion.end();
       console.error(error);
       return {
         status: "error",
@@ -275,8 +267,6 @@ class Company {
           error.message,
       };
     }
-    // Retourner les résultats au format JSON
-    return response;
   }
 
   async testConnexion() {

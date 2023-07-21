@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const sqlsrv = require("mssql");
+const connectToSqlserver = require("../functions/connectToSqlServer");
 
 class Database {
   constructor(companyName) {
@@ -24,12 +25,13 @@ class Database {
           );
           connection.end(); // Fermer la connexion en cas d'erreur
         } else {
-          console.log("Connexion à la base de données établie.");
+          console.log("Connexion à la base de données administrateur établie.");
         }
       });
 
       return connection;
     } catch (error) {
+      connection.end();
       console.error(error);
       return false;
     }
@@ -48,11 +50,11 @@ class Database {
       return new Promise((resolve, reject) => {
         workflowConnection.connect((error) => {
           if (error) {
+            workflowConnection.end();
             console.error(
-              "Erreur de connexion à la base de données workflow :",
+              "Erreur de connexion à la base de données entreprise :",
               error
             );
-            workflowConnection.end();
 
             reject(error);
           } else {
@@ -60,16 +62,17 @@ class Database {
 
             workflowConnection.query(selectQuery, (error, results) => {
               if (error) {
+                workflowConnection.end();
                 console.error(
                   "Erreur lors de l'exécution de la requête SELECT :",
                   error
                 );
-                workflowConnection.end();
               } else {
                 if (results.length === 0) {
                   workflowConnection.end();
-                  reject(null); // Aucune entreprise trouvée
+                  resolve(false);
                 } else {
+                  workflowConnection.end();
                   const company = results[0];
                   const { databaseName, servername, username, password } =
                     company;
@@ -87,9 +90,8 @@ class Database {
                       },
                     };
 
-                    const companyConnection = sqlsrv.connect(otherDBConfig);
-
-                    resolve(companyConnection);
+                   
+                      resolve( connectToSqlserver(otherDBConfig))
                   } else {
                     // Connexion spécifique à MySQL
                     const mysqlDBConfig = {
@@ -103,15 +105,18 @@ class Database {
 
                     companyConnection.connect((error) => {
                       if (error) {
+                        companyConnection.end();
                         console.error(
-                          "Erreur de connexion à la base de données de l'entreprise :",
+                          "Erreur de connexion à la base de données entreprise :",
                           error
                         );
-                        companyConnection.end();
-                        return error;
+
+                        resolve(false);
                       }
                     });
-
+                    console.log(
+                      "Connexion à la base de données entreprise établie."
+                    );
                     resolve(companyConnection);
                   }
                 }
@@ -121,10 +126,13 @@ class Database {
         });
       });
     } catch (error) {
+      workflowConnection.end();
       console.error(error);
       return false;
     }
   }
+
+ 
 }
 
 module.exports = Database;

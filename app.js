@@ -143,6 +143,6 @@ app.post("/validateRequisition", async (req, res) => {
   await validateRequisition(req, res, connexion);
 });
 
-//app.listen(3000, () => console.log(`Notre application Node est démarrée sur : http://localhost:${3000}`))
+app.listen(3000, () => console.log(`Notre application Node est démarrée sur : http://localhost:${3000}`))
 
 module.exports = app;

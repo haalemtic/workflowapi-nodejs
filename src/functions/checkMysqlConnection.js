@@ -17,7 +17,7 @@ async function checkMySqlConnection(server, user, password, database) {
       return true;
     } catch (error) {
       connection.end();
-      console.log(error);
+      //console.log(error);
       return false;
     } 
   }

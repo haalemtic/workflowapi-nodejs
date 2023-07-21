@@ -17,7 +17,7 @@ async function checkSqlServerConnection(server, user, password, database) {
   
       return true;
     } catch (error) {
-      console.log("Une erreur s'est produite :", error);
+      //console.log("Une erreur s'est produite :", error);
       return false;
     } finally {
       sqlsvr.close();
