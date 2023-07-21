@@ -157,23 +157,23 @@ class Company {
   async updateCompany() {
     try {
       // Requête pour mettre à jour la compagnie
-      const query = `UPDATE ${this.table} SET databaseName = "${this.databaseName}", servername = "${this.servername}", username = "${this.username}", password = "${this.password}" WHERE id = ${this.id}`;
-
-      await this.connexion.query(query, (erreur, resultats) => {
-        if (erreur) {
-          console.log("Erreur lors de la mise à jour des champs :", erreur);
-          return false;
-        } else {
-          console.log("Champs mis à jour avec succès !");
-          return true;
-        }
+     
+      const query = `UPDATE ${this.table} SET databaseName = '${this.databaseName}', servername = '${this.servername}', username = '${this.username}', password = '${this.password}' WHERE id = ${this.id}`;
+      return new Promise(async (resolve, reject) => {
+        await this.connexion.query(query, (erreur, resultats) => {
+          if (erreur) {
+            console.log("Erreur lors de la mise à jour des champs :", erreur);
+            this.connexion.end();
+            resolve(false);
+          } else {
+            this.connexion.end();
+            console.log("Champs mis à jour avec succès !");
+            resolve(true);
+          }
+        });
       });
-
-      this.connexion.end();
-
-      return true;
     } catch (error) {
-      console.error(error);
+      console.log(error);
       this.connexion.end();
       return false;
     }

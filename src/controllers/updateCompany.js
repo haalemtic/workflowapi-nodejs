@@ -9,8 +9,7 @@ const companyInstance = new Company(connexion);
     !inputData.servername ||
     !inputData.username ||
     !inputData.password ||
-    !inputData.id ||
-    !inputData.companyName
+    !inputData.id 
   ) {
     res.json({
       message:
@@ -20,7 +19,7 @@ const companyInstance = new Company(connexion);
   } else {
 
    
-    companyInstance.id = parseInt(inputData.id);
+    companyInstance.id = parseInt(inputData.id,10);
     companyInstance.username = inputData.username;
     companyInstance.databaseName = inputData.databaseName;
     companyInstance.password = inputData.password;
