@@ -1,6 +1,7 @@
 const checkMySqlConnection = require("../functions/checkMysqlConnection");
 const checkSqlServerConnection = require("../functions/checkSqlSrvConnection");
 const sqlsvr = require("mssql");
+const tableExists = require("../functions/checkTableExist");
 class User {
   constructor(databases) {
     this.table = "WORKFLOWUSERS";
@@ -74,22 +75,15 @@ class User {
   }
 
   async signup() {
-    try {
-      // Vérifier si la table "workflowusers" existe déjà
-      const checkTableQuery = `
-        SELECT TABLE_NAME
-        FROM INFORMATION_SCHEMA.TABLES
-        WHERE TABLE_NAME = 'WORKLOWUSERS'
-      `;
+    // Vérifier si la table "workflowusers" existe déjà
+    const tableExist = await tableExists(this.connexion, this.table,this.companyName);
+    
+    console.log(tableExist);
 
-      const checkTableResult = await this.connexion.query(checkTableQuery);
-
-      const tableExists = checkTableResult.recordset.length > 0;
-
-      if (!tableExists) {
-        // Créer la table "workflowusers" si elle n'existe pas
-        const createTableQuery = `
-          CREATE TABLE WORKLOWUSERS (
+    if (!tableExist) {
+      // Créer la table "workflowusers" si elle n'existe pas
+      const createTableQuery = `
+          CREATE TABLE ${this.table} (
             COMPANYID VARCHAR(255),
             EMAILADD VARCHAR(255) PRIMARY KEY,
             USERNAME VARCHAR(255),
@@ -99,37 +93,33 @@ class User {
             MAXAMOUNT VARCHAR(255)
           )
         `;
-        this.connexion.query(createTableQuery);
-      }
+      this.connexion.query(createTableQuery);
+    }
 
-      // Insérer les informations de l'utilisateur dans la table "workflowusers"
-      const insertQuery = `
-        INSERT INTO WORKLOWUSERS (COMPANYID, EMAILADD, USERNAME, DEPARTMENT, GRADE, PASSWORD, MAXAMOUNT)
+    // Insérer les informations de l'utilisateur dans la table "workflowusers"
+    const insertQuery = `
+        INSERT INTO ${this.table} (COMPANYID, EMAILADD, USERNAME, DEPARTMENT, GRADE, PASSWORD, MAXAMOUNT)
         VALUES ('${this.companyName}', '${this.emailAdd}', '${this.username}', '${this.department}', '${this.grade}', '${this.password}', '${this.maxAmount}')
       `;
 
-      return new Promise((resolve, reject) => {
-        this.connexion.query(insertQuery, (error) => {
-          if (error) {
-            if (this.companyName != "vision") {
-            } else {
-              this.connexion.end();
-            }
-            // console.log("Erreur lors de l'exécution de la requête SELECT :",error);
-            resolve(false);
+    return new Promise((resolve, reject) => {
+      this.connexion.query(insertQuery, (error) => {
+        if (error) {
+          if (this.companyName != "vision") {
           } else {
-            if (this.companyName != "vision") {
-            } else {
-              this.connexion.end();
-            }
-            resolve(true);
+            this.connexion.end();
           }
-        });
+          // console.log("Erreur lors de l'exécution de la requête SELECT :",error);
+          resolve(false);
+        } else {
+          if (this.companyName != "vision") {
+          } else {
+            this.connexion.end();
+          }
+          resolve(true);
+        }
       });
-    } catch (error) {
-      //console.log("Une erreur s'est produite :", error);
-      return false; // Erreur lors de l'opération
-    }
+    });
   }
 
   async getAllUsers() {
