@@ -77,8 +77,7 @@ class User {
   async signup() {
     // Vérifier si la table "workflowusers" existe déjà
     const tableExist = await tableExists(this.connexion, this.table,this.companyName);
-    
-    console.log(tableExist);
+ 
 
     if (!tableExist) {
       // Créer la table "workflowusers" si elle n'existe pas
@@ -93,7 +92,7 @@ class User {
             MAXAMOUNT VARCHAR(255)
           )
         `;
-      this.connexion.query(createTableQuery);
+      await this.connexion.query(createTableQuery);
     }
 
     // Insérer les informations de l'utilisateur dans la table "workflowusers"
