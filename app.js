@@ -71,8 +71,7 @@ app.get("/allCompanies", async (req, res) => {
 app.post("/newCompany", async (req, res) => {
   const databases = new Database();
   const connexion = databases.connectToWorkflowDB();
-
-  createCompany(req, res, connexion);
+  await createCompany(req, res, connexion);
 });
 
 //Mettre à jour une entreprise
@@ -143,6 +142,6 @@ app.post("/validateRequisition", async (req, res) => {
   await validateRequisition(req, res, connexion);
 });
 
-//app.listen(3000, () => console.log(`Notre application Node est démarrée sur : http://localhost:${3000}`))
+app.listen(3000, () => console.log(`Notre application Node est démarrée sur : http://localhost:${3000}`))
 
-module.exports = app;
+//module.exports = app;

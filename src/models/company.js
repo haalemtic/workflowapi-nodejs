@@ -114,50 +114,36 @@ class Company {
     });
   }
 
-  createCompany() {
-    // Informations de la nouvelle compagnie (à remplacer par vos entrées)
-    const companyInfo = {
-      backgroundColor: this.backgroundColor,
-      companyName: this.companyName,
-      username: this.username,
-      databaseName: this.databaseName,
-      password: this.password,
-      servername: this.servername,
-    };
-    const query =
-      "INSERT INTO Company (backgroundColor, companyName, username, databaseName, password, servername) VALUES (?, ?, ?, ?, ?, ?)";
-    const values = [
-      companyInfo.backgroundColor,
-      companyInfo.companyName,
-      companyInfo.username,
-      companyInfo.databaseName,
-      companyInfo.password,
-      companyInfo.servername,
-    ];
+  async createCompany() {
+    
+    const query = `INSERT INTO ${this.table} (backgroundColor, companyName, username, databaseName, password, servername) VALUES ('${this.backgroundColor}','${this.companyName}', '${this.username}', '${this.databaseName}', '${this.password}', '${this.servername}')`;
 
-    this.connexion.query(query, values, (err, result) => {
-      this.connexion.end(); // Fermeture de la connexion à la base de données
-
-      if (err) {
-        console.error("Erreur lors de la création de la compagnie :", err);
-        this.connexion.end();
-        return {
-          status: "error",
-          message: "Echec lors de la création d'une nouvelle compagnie",
-        };
-      }
+    return new Promise(async (resolve, reject) => {
+      await this.connexion.query(query, (erreur) => {
+        if (erreur) {
+          console.log("Erreur lors de la création de la compagnie :", erreur);
+          this.connexion.end();
+          console.log(erreur);
+          resolve({
+            status: "error",
+            message: "Echec lors de la création d'une nouvelle compagnie",
+          });
+        } else {
+          this.connexion.end();
+          resolve({
+            status: "success",
+            message: "Nouvelle compagnie ajoutée",
+          });
+        }
+      });
     });
-    this.connexion.end();
-    return {
-      status: "success",
-      message: "Nouvelle compagnie ajoutée",
-    };
+     
   }
 
   async updateCompany() {
     try {
       // Requête pour mettre à jour la compagnie
-     
+
       const query = `UPDATE ${this.table} SET databaseName = '${this.databaseName}', servername = '${this.servername}', username = '${this.username}', password = '${this.password}' WHERE id = ${this.id}`;
       return new Promise(async (resolve, reject) => {
         await this.connexion.query(query, (erreur, resultats) => {

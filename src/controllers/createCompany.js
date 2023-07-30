@@ -1,6 +1,6 @@
 const Company = require("../models/company");
 
-exports.createCompany = (req, res, connexion) => {
+exports.createCompany = async (req, res, connexion) => {
 
   const companyInstance = new Company(connexion);
   const inputData = req.body;
@@ -26,7 +26,7 @@ exports.createCompany = (req, res, connexion) => {
     companyInstance.databaseName = inputData.databaseName;
     companyInstance.password = inputData.password;
     companyInstance.servername = inputData.servername;
-    const response = companyInstance.createCompany();
+    const response = await companyInstance.createCompany();
     res.json(response);
   }
 };
