@@ -3,8 +3,9 @@ const sqlsvr= require ('mssql')
 async function checkSqlServerConnection(server, user, password, database) {
     try {
       // Configuration de la connexion à la base de données
+      const formattedServername = server.replace(/\\\\/g, "\\");
       const config = {
-        server: server.replace(/\\\\/g, "\\"),
+        server: formattedServername,
         user: user,
         password: password,
         database: database,

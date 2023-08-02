@@ -89,6 +89,7 @@ class Company {
                               company.password,
                               company.databaseName
                             );
+                            const formattedServername = company.servername.replace(/\\\\/g, "\\")
                       formattedCompanies.push({
                         id: `${companyId}`,
                         backgroundColor: company.backgroundColor,
@@ -96,7 +97,7 @@ class Company {
                         username: company.username,
                         databaseName: company.databaseName,
                         password: company.password,
-                        servername: `${company.servername}`,
+                        servername: `${formattedServername}`,
                         status: connectionStatus,
                         grades: gradeFiltered,
                         departments: departmentFiltered,
@@ -259,7 +260,7 @@ class Company {
     try {
       // Configuration de la connexion à la base de données
       const config = {
-        server: this.servername.replace(/\\\\/g, "\\"),
+        server: this.servername,
         user: this.username,
         password: this.password,
         database: this.databaseName,
